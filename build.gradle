@@ -17,6 +17,7 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	// https://mvnrepository.com/artifact/org.codehaus.groovy/groovy-all
 	implementation group: 'org.codehaus.groovy', name: 'groovy-all', version: '3.0.11', ext: 'pom'
 	
