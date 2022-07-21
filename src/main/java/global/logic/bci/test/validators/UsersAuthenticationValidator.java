@@ -23,10 +23,8 @@ public class UsersAuthenticationValidator {
 		List<Error> errors = new ArrayList<>();
 		
 		//Validación de los datos de entrada
-		if(!RegularExpressionsUtils.match(RegularExpressionsUtils.EMAIL_ADDRESS_REGEXP, Optional.ofNullable(body.getEmail()).orElse(""))) {
-			errors.add(ErrorUtils.generateError(ErrorCodes.UA0001));
-		}
-		validatePassword(body, errors);
+		validateEmail(Optional.ofNullable(body.getEmail()).orElse(""), errors);
+		validatePassword(Optional.ofNullable(body.getPassword()).orElse(""), errors);
 		
 		
 		//Si se encontró algún error previamente genero la excepción correspondiente para que el handler pueda manejarla
@@ -34,15 +32,24 @@ public class UsersAuthenticationValidator {
 			throw new WrongInputException(errors);
 		}
 	}
+
+	/*
+	 	Validación del campo email
+	*/
+	private void validateEmail(String email, List<Error> errors) {
+		if(!RegularExpressionsUtils.match(RegularExpressionsUtils.EMAIL_ADDRESS_REGEXP, email)) {
+			errors.add(ErrorUtils.generateError(ErrorCodes.UA0001));
+		}
+	}
 	
 	/*
 		Validación del campo password
 	*/
-	private void validatePassword(RegisterNewUserRequest body, List<Error> errors) {
-		if(Optional.ofNullable(body.getPassword()).orElse("").length() < 8 || Optional.ofNullable(body.getPassword()).orElse("").length() > 12) {
+	private void validatePassword(String password, List<Error> errors) {
+		if(password.length() < 8 || password.length() > 12) {
 			errors.add(ErrorUtils.generateError(ErrorCodes.UA0002));
 		}
-		if(!RegularExpressionsUtils.match(RegularExpressionsUtils.PASSWORD_REGEXP, Optional.ofNullable(body.getPassword()).orElse(""))) {
+		if(!RegularExpressionsUtils.match(RegularExpressionsUtils.PASSWORD_REGEXP, password)) {
 			errors.add(ErrorUtils.generateError(ErrorCodes.UA0003));
 		}
 	}

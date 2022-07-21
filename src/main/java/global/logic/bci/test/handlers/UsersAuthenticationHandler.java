@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import global.logic.bci.test.exceptions.WrongInputException;
 import global.logic.bci.test.models.ErrorCodes;
+import global.logic.bci.test.models.NewUser;
 import global.logic.bci.test.models.request.RegisterNewUserRequest;
 import global.logic.bci.test.models.response.LoginResponse;
 import global.logic.bci.test.models.response.RegisterNewUserResponse;
@@ -35,8 +36,8 @@ public class UsersAuthenticationHandler {
 			validator.validateNewUserRegistrationInputs(body);
 			logger.debug("[Sign-Up] Datos de entrada validados con exito");
 			
-			service.registerNewUser(body);
-			logger.info("[Sign-Up] El usuario [{}] se dio de alta con exito en el sistema", body.getEmail());
+			NewUser newUserInformation = service.registerNewUser(body);
+			logger.info("[Sign-Up] El usuario [{}] se dio de alta con exito en el sistema", newUserInformation.getId());
 			
 			return new ResponseEntity<RegisterNewUserResponse>(response, HttpStatus.OK);
 		} catch(WrongInputException e) {
