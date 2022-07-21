@@ -12,12 +12,18 @@ import global.logic.bci.test.models.NewUser;
 import global.logic.bci.test.models.NewUser.NewUserBuilder;
 import global.logic.bci.test.models.request.RegisterNewUserRequest;
 import global.logic.bci.test.repositories.UsersAuthenticationRepository;
+import global.logic.bci.test.utils.encoding.Base64Decoder;
+import global.logic.bci.test.utils.encoding.Base64Encoder;
 
 @Service
 public class UsersAuthenticationService {
 	private static final Logger logger = LoggerFactory.getLogger(UsersAuthenticationService.class);
 	@Autowired
 	private UsersAuthenticationRepository repository;
+	@Autowired
+	private Base64Encoder passwordEncoder;
+	@Autowired
+	private Base64Decoder passwordDecoder;
 	
 	/*
 	 	Se generan los datos necesarios del usuario y se da el alta en la base de datos
@@ -43,7 +49,10 @@ public class UsersAuthenticationService {
 		//Seteamos la cuenta como activa (como no hay definición al respecto, se asume que queda activa al registrarse y no va a cambiar)
 		newUser.isActive(true);
 		
-		//TODO: Encriptar password
+		//Encripción de la password
+		String encodedPassword = passwordEncoder.encodePassword(body.getPassword());
+		logger.info("Encoded password: [{}]", encodedPassword);
+		
 		//TODO: Implementar consulta de la base de datos
 		
 		return newUser.build();
