@@ -43,6 +43,7 @@ public class UsersAuthenticationService {
 		//Seteamos la cuenta como activa (como no hay definición al respecto, se asume que queda activa al registrarse y no va a cambiar)
 		newUser.isActive(true);
 		
+		//TODO: Encriptar password
 		//TODO: Implementar consulta de la base de datos
 		
 		return newUser.build();
@@ -60,7 +61,6 @@ public class UsersAuthenticationService {
 	 	Obtención de IDs
 	*/
 	private String generateID() {
-		/*Nota: en un futuro podría implementarse una interfaz en caso de que haya distintos algoritmos para generar IDs*/
 		return UUID.randomUUID().toString();
 	}
 }

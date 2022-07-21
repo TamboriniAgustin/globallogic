@@ -39,6 +39,12 @@ public class UsersAuthenticationHandler {
 			NewUser newUserInformation = service.registerNewUser(body);
 			logger.info("[Sign-Up] El usuario [{}] se dio de alta con exito en el sistema", newUserInformation.getId());
 			
+			response.setId(newUserInformation.getId());
+			response.setToken(newUserInformation.getToken());
+			response.setCreated(newUserInformation.getCreated().toString());
+			response.setLastLogin(newUserInformation.getLastLogin().toString());
+			response.setActive(newUserInformation.isActive());
+			
 			return new ResponseEntity<RegisterNewUserResponse>(response, HttpStatus.OK);
 		} catch(WrongInputException e) {
 			logger.error("[Sign-Up] Ocurrio un error con alguno de los datos de entrada");
