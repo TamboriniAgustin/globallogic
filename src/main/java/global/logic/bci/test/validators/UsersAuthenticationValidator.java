@@ -12,6 +12,7 @@ import global.logic.bci.test.utils.ErrorUtils;
 import global.logic.bci.test.utils.RegularExpressionsUtils;
 import global.logic.bci.test.models.Error;
 import global.logic.bci.test.models.ErrorCodes;
+import global.logic.bci.test.models.Phone;
 
 @Component
 public class UsersAuthenticationValidator {
@@ -25,7 +26,11 @@ public class UsersAuthenticationValidator {
 		//Validación de los datos de entrada
 		validateEmail(Optional.ofNullable(body.getEmail()).orElse(""), errors);
 		validatePassword(Optional.ofNullable(body.getPassword()).orElse(""), errors);
-		
+		Optional.ofNullable(body.getPhones()).ifPresent(phones -> {
+			phones.forEach(phone -> {
+				validatePhone(phone, errors);
+			});
+		});
 		
 		//Si se encontró algún error previamente genero la excepción correspondiente para que el handler pueda manejarla
 		if(!errors.isEmpty()) {
@@ -51,6 +56,15 @@ public class UsersAuthenticationValidator {
 		}
 		if(!RegularExpressionsUtils.match(RegularExpressionsUtils.PASSWORD_REGEXP, password)) {
 			errors.add(ErrorUtils.generateError(ErrorCodes.UA0003));
+		}
+	}
+	
+	/*
+	 	Validación de un número de teléfono
+	*/
+	private void validatePhone(Phone phone, List<Error> errors) {
+		if(phone.getCountryCode() == null || phone.getCountryCode().equals("")) {
+			errors.add(ErrorUtils.generateError(ErrorCodes.UA0006));
 		}
 	}
 }

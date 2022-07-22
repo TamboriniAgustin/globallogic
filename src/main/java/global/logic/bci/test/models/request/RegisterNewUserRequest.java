@@ -1,6 +1,8 @@
 package global.logic.bci.test.models.request;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import global.logic.bci.test.models.Phone;
 import lombok.Getter;
@@ -13,6 +15,11 @@ public class RegisterNewUserRequest {
 	private String email;
 	private String password;
 	private List<Phone> phones;
+	
+	public void addPhone(Phone phone) {
+		phones = Optional.ofNullable(phones).orElse(new ArrayList<>());
+		phones.add(phone);
+	}
 	
 	@Override
 	public int hashCode() {

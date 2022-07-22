@@ -1,5 +1,6 @@
 package global.logic.bci.test.models.response;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import global.logic.bci.test.models.Error;
@@ -8,7 +9,7 @@ import lombok.Setter;
 
 @Getter @Setter
 public class RequestResponse {
-	private List<Error> errors;
+	private List<Error> errors = new ArrayList<>();
 	
 	public void addError(Error error) {
 		this.errors.add(error);

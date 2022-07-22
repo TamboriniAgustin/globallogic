@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import global.logic.bci.test.exceptions.InsertUserException;
 import global.logic.bci.test.exceptions.WrongInputException;
 import global.logic.bci.test.models.ErrorCodes;
 import global.logic.bci.test.models.NewUser;
@@ -47,11 +48,15 @@ public class UsersAuthenticationHandler {
 			
 			return new ResponseEntity<RegisterNewUserResponse>(response, HttpStatus.OK);
 		} catch(WrongInputException e) {
-			logger.error("[Sign-Up] Ocurrio un error con alguno de los datos de entrada");
+			logger.error("[Sign-Up] Ocurrio un error con alguno de los datos de entrada", e);
 			response.setErrors(e.getErrorsFounded());
 			return new ResponseEntity<RegisterNewUserResponse>(response, HttpStatus.BAD_REQUEST);
+		} catch(InsertUserException e) {
+			logger.error(e.getMessage(), e);
+			response.addError(ErrorUtils.generateError(e.getErrorCode()));
+			return new ResponseEntity<RegisterNewUserResponse>(response, HttpStatus.PRECONDITION_FAILED);
 		} catch(Exception e) {
-			logger.error("[Sign-Up] Ocurrio un error inesperado");
+			logger.error("[Sign-Up] Ocurrio un error inesperado", e);
 			response.addError(ErrorUtils.generateError(ErrorCodes.UA0000));
 			return new ResponseEntity<RegisterNewUserResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}

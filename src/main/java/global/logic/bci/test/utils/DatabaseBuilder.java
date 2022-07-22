@@ -1,11 +1,14 @@
 package global.logic.bci.test.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DatabaseBuilder {
+	private static final Logger logger = LoggerFactory.getLogger(DatabaseBuilder.class);
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
@@ -37,6 +40,7 @@ public class DatabaseBuilder {
 		dropTables();
 		createTables();
 		addKeys();
+		logger.debug("Base de datos generada con exito");
 	}
 	
 	

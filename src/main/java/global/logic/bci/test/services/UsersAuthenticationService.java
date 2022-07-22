@@ -4,13 +4,17 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import global.logic.bci.test.exceptions.InsertUserException;
+import global.logic.bci.test.models.ErrorCodes;
 import global.logic.bci.test.models.NewUser;
 import global.logic.bci.test.models.NewUser.NewUserBuilder;
 import global.logic.bci.test.models.request.RegisterNewUserRequest;
@@ -68,7 +72,29 @@ public class UsersAuthenticationService {
 		logger.info("Se genero el token de usuario [{}] correctamente", token);
 		userInformation.setToken(token);
 		
-		//TODO: Implementar consulta de la base de datos
+		//Registro del usuario en la base de datos
+		try {
+			repository.insertUser(userInformation);
+		} catch(DuplicateKeyException e) {
+			throw new InsertUserException("[Sign-Up] El usuario ingresado ya fue registrado previamente", ErrorCodes.UA0004);
+		}
+		
+		//Si el usuario fue registrado correctamente, registramos sus números de teléfono
+		try {
+			Optional.ofNullable(userInformation.getPhones()).ifPresent(phones -> {
+				phones.forEach(phone -> {
+					repository.insertPhone(userInformation.getId(), phone);
+				});
+			}); 
+		} catch(DuplicateKeyException e) {
+			//Si algo falla hacemos rollback del usuario creado
+			repository.deleteUser(userInformation.getId());
+			throw new InsertUserException("[Sign-Up] Uno de los telefonos ingresados se encuentra repetido", ErrorCodes.UA0005);
+		} catch(Exception e) {
+			//Si algo falla hacemos rollback del usuario creado
+			repository.deleteUser(userInformation.getId());
+			throw e;
+		}
 		
 		return userInformation;
 	}
