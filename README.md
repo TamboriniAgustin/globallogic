@@ -1,5 +1,10 @@
 # GlobalLogic - BCI Test
-*Uso
+##Diagramas
+###Secuencia
+![Secuencia](documents/diagrams/sequence/Secuencia.jpg)
+###Componentes
+![Componentes](documents/diagrams/components/Componentes.jpg)
+##Uso
 La aplicación contempla el uso de dos endpoints cuyas entradas y salidas serán detalladas a continuación:
 - /sign-up
 	- Se recibirá una única entrada, compuesta por el siguiente body:
