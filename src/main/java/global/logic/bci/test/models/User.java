@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter @Builder
-public class NewUser {
+public class User {
 	private String id;
 	private String name;
 	private String email;
@@ -46,7 +46,7 @@ public class NewUser {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		NewUser other = (NewUser) obj;
+		User other = (User) obj;
 		if (created == null) {
 			if (other.created != null) {
 				return false;

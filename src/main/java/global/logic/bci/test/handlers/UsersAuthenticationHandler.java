@@ -3,6 +3,7 @@ package global.logic.bci.test.handlers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
 import global.logic.bci.test.exceptions.InsertUserException;
 import global.logic.bci.test.exceptions.WrongInputException;
 import global.logic.bci.test.models.ErrorCodes;
-import global.logic.bci.test.models.NewUser;
+import global.logic.bci.test.models.User;
 import global.logic.bci.test.models.request.RegisterNewUserRequest;
 import global.logic.bci.test.models.response.LoginResponse;
 import global.logic.bci.test.models.response.RegisterNewUserResponse;
@@ -37,7 +38,7 @@ public class UsersAuthenticationHandler {
 			validator.validateNewUserRegistrationInputs(body);
 			logger.debug("[Sign-Up] Datos de entrada validados con exito");
 			
-			NewUser newUserInformation = service.registerNewUser(body);
+			User newUserInformation = service.registerNewUser(body);
 			logger.info("[Sign-Up] El usuario [{}] se dio de alta con exito en el sistema", newUserInformation.getId());
 			
 			response.setId(newUserInformation.getId());
@@ -70,14 +71,28 @@ public class UsersAuthenticationHandler {
 		LoginResponse response = new LoginResponse();
 		
 		try {
-			service.login(token);
-			logger.info("[Login] El usuario [{}] ingreso al sistema correctamente", "test@temporal.com");
+			User user = service.login(token);
+			logger.info("[Login] El usuario [{}] ingreso al sistema correctamente", user.getEmail());
 			
-			return new ResponseEntity<LoginResponse>(HttpStatus.OK);
+			response.setId(user.getId());
+			response.setName(user.getName());
+			response.setEmail(user.getEmail());
+			response.setCreated(user.getCreated().toString());
+			response.setLastLogin(user.getLastLogin().toString());
+			response.setPassword(user.getPassword());
+			response.setToken(user.getToken());
+			response.setPhones(user.getPhones());
+			response.setActive(user.isActive());
+			
+			return new ResponseEntity<LoginResponse>(response, HttpStatus.OK);
+		} catch(EmptyResultDataAccessException e) {
+			logger.error("[Login] El usuario ingresado es inexistente", e);
+			response.addError(ErrorUtils.generateError(ErrorCodes.UA0007));
+			return new ResponseEntity<LoginResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch(Exception e) {
-			logger.error("[Login] Ocurrio un error inesperado");
+			logger.error("[Login] Ocurrio un error inesperado", e);
 			response.addError(ErrorUtils.generateError(ErrorCodes.UA0000));
-			return new ResponseEntity<LoginResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<LoginResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 }

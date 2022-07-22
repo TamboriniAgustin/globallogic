@@ -8,11 +8,15 @@ import static org.mockito.Mockito.doNothing
 import static org.mockito.Mockito.doThrow
 import static org.mockito.Mockito.when
 
+import java.security.NoSuchAlgorithmException
+
 import org.springframework.dao.DuplicateKeyException
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.test.util.ReflectionTestUtils
 
 import global.logic.bci.test.exceptions.InsertUserException
-import global.logic.bci.test.models.NewUser
+import global.logic.bci.test.models.User;
+import global.logic.bci.test.models.User.UserBuilder;
 import global.logic.bci.test.models.Phone
 import global.logic.bci.test.models.request.RegisterNewUserRequest
 import global.logic.bci.test.repositories.UsersAuthenticationRepository
@@ -32,7 +36,7 @@ class UsersAuthenticationServiceSpec extends Specification {
 	public void setup() {
 		service = new UsersAuthenticationService()
 		
-		repository = Mock(UsersAuthenticationRepository)
+		repository = Stub(UsersAuthenticationRepository)
 		passwordEncoder = Spy(Base64Encoder)
 		passwordDecoder = Spy(Base64Decoder)
 		jwtGenerator = Spy(JwtGeneratorRSA256)
@@ -43,6 +47,7 @@ class UsersAuthenticationServiceSpec extends Specification {
 		ReflectionTestUtils.setField(service, "repository", repository)
 	}
 	
+	/* Registro de usuario */
 	public void "Registro de un usuario sin numeros de telefono correctamente"() {
 		given:
 			RegisterNewUserRequest request = new RegisterNewUserRequest();
@@ -53,7 +58,6 @@ class UsersAuthenticationServiceSpec extends Specification {
 			def result = service.registerNewUser(request)
 		then:
 			notThrown(Exception)
-			1*repository.insertUser(_ as NewUser)
 	}
 	
 	public void "Registro de un usuario con 2 numeros de telefono correctamente"() {
@@ -78,13 +82,11 @@ class UsersAuthenticationServiceSpec extends Specification {
 			def result = service.registerNewUser(request)
 		then:
 			notThrown(Exception)
-			1*repository.insertUser(_ as NewUser)
-			2*repository.insertPhone(_ as String, _ as Phone)
 	}
 	
 	public void "Registro invalido: usuario duplicado"() {
 		given:
-			repository.insertUser(_ as NewUser) >> { throw new DuplicateKeyException("Prueba") }
+			repository.insertUser(_ as User) >> { throw new DuplicateKeyException("Prueba") }
 			
 			RegisterNewUserRequest request = new RegisterNewUserRequest();
 			request.setName("Hola Mundo");
@@ -114,5 +116,24 @@ class UsersAuthenticationServiceSpec extends Specification {
 			service.registerNewUser(request)
 		then:
 			thrown(InsertUserException)
+	}
+	
+	/* Login de usuario */
+	public void "Logueo exitoso de usuario"() {
+		given:
+			String token = "SADSFASOFO??20321'S==="
+		when:
+			def result = service.login(token)
+		then:
+			notThrown(Exception)
+	}
+	
+	public void "Logueo invalido: token incorrecto"() {
+		given:
+			repository.selectUserByToken("abc") >> { throw new EmptyResultDataAccessException(500) }
+		when:
+			service.login("abc")
+		then:
+			thrown(EmptyResultDataAccessException)
 	}
 }

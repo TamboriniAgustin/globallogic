@@ -1,4 +1,4 @@
-package global.logic.bci.test.utils;
+package global.logic.bci.test.utils.database;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

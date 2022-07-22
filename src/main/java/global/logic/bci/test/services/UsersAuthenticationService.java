@@ -3,6 +3,7 @@ package global.logic.bci.test.services;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,8 +16,9 @@ import org.springframework.stereotype.Service;
 
 import global.logic.bci.test.exceptions.InsertUserException;
 import global.logic.bci.test.models.ErrorCodes;
-import global.logic.bci.test.models.NewUser;
-import global.logic.bci.test.models.NewUser.NewUserBuilder;
+import global.logic.bci.test.models.Phone;
+import global.logic.bci.test.models.User;
+import global.logic.bci.test.models.User.UserBuilder;
 import global.logic.bci.test.models.request.RegisterNewUserRequest;
 import global.logic.bci.test.repositories.UsersAuthenticationRepository;
 import global.logic.bci.test.utils.encoding.Base64Decoder;
@@ -39,8 +41,8 @@ public class UsersAuthenticationService {
 	 	Se generan los datos necesarios del usuario y se da el alta en la base de datos
 	 	Params: @body (recibe la información necesaria para generar un alta)
 	*/
-	public NewUser registerNewUser(RegisterNewUserRequest body) throws NoSuchAlgorithmException {
-		NewUserBuilder newUser = NewUser.builder();
+	public User registerNewUser(RegisterNewUserRequest body) throws NoSuchAlgorithmException {
+		UserBuilder newUser = User.builder();
 		
 		//Generación del ID del usuario
 		String id = generateID();
@@ -65,7 +67,7 @@ public class UsersAuthenticationService {
 		newUser.name(body.getName());
 		newUser.email(body.getEmail());
 		newUser.phones(body.getPhones());
-		NewUser userInformation = newUser.build();
+		User userInformation = newUser.build();
 		
 		//Generación del token
 		String token = generateJWT(userInformation);
@@ -103,8 +105,30 @@ public class UsersAuthenticationService {
 	 	Se consulta la base de datos para corroborar la información del usuario
 	 	Params: @token
 	*/
-	public void login(String token) {
+	public User login(String token) throws NoSuchAlgorithmException {
+		//Realizamos la consulta del usuario buscando por token
+		User user = repository.selectUserByToken(token);
+		//Si se encontró el usuario, buscamos sus teléfonos
+		List<Phone> userPhones = repository.selectPhonesByUserId(user.getId());
+		user.setPhones(userPhones);
 		
+		//Si se obtuvo el usuario sin ningún problema hay que actualizar el token y el último ingreso
+		Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+		user.setLastLogin(currentTimestamp);
+		
+		String newToken = generateJWT(user);
+		logger.info("Se genero el nuevo token de usuario [{}] correctamente", token);
+		user.setToken(newToken);
+		
+		//Actualizamos los datos del usuario en la base de datos
+		repository.updateUserByNewLogin(user);
+		logger.info("Nuevo inicio de sesion registrado");
+		
+		//Desencriptamos la password ya que el ejercicio requiere verla como se ingresó
+		String decodedPassword = passwordDecoder.decodePassword(user.getPassword());
+		user.setPassword(decodedPassword);
+		
+		return user;
 	}
 	
 	/*
@@ -117,7 +141,7 @@ public class UsersAuthenticationService {
 	/*
 	 	Generación de Json Web Token para el usuario
 	*/
-	private String generateJWT(NewUser userInformation) throws NoSuchAlgorithmException {
+	private String generateJWT(User userInformation) throws NoSuchAlgorithmException {
 		Map<String, String> jwtClaims = new HashMap<>();
 		
 		jwtClaims.put("user_id", userInformation.getId());

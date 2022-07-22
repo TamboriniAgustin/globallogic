@@ -15,12 +15,14 @@ public class LoginResponse extends RequestResponse {
 	private String name;
 	private String email;
 	private String password;
+	private boolean active;
 	private List<Phone> phones;
 	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
+		result = prime * result + (active ? 1231 : 1237);
 		result = prime * result + ((created == null) ? 0 : created.hashCode());
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
@@ -44,6 +46,9 @@ public class LoginResponse extends RequestResponse {
 			return false;
 		}
 		LoginResponse other = (LoginResponse) obj;
+		if (active != other.active) {
+			return false;
+		}
 		if (created == null) {
 			if (other.created != null) {
 				return false;
@@ -101,5 +106,5 @@ public class LoginResponse extends RequestResponse {
 			return false;
 		}
 		return true;
-	}
+	}	
 }

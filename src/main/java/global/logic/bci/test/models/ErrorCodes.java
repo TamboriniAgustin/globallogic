@@ -12,7 +12,8 @@ public enum ErrorCodes {
 	UA0003(3, "La password debe contener una mayuscula y dos caracteres numericos", new Timestamp(System.currentTimeMillis())),
 	UA0004(4, "El usuario ingresado ya existe, ingresa otra direccion de correo electronico", new Timestamp(System.currentTimeMillis())),
 	UA0005(5, "Un telefono se ha ingresado dos veces", new Timestamp(System.currentTimeMillis())),
-	UA0006(6, "Se ha ingresado un telefono sin el codigo de pais correspondiente", new Timestamp(System.currentTimeMillis()));
+	UA0006(6, "Se ha ingresado un telefono sin el codigo de pais correspondiente", new Timestamp(System.currentTimeMillis())),
+	UA0007(7, "El usuario ingresado es inexistente", new Timestamp(System.currentTimeMillis()));
 	
 	private int code;
 	private String reason;
