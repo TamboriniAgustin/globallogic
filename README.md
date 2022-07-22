@@ -3,6 +3,7 @@
 La aplicación contempla el uso de dos endpoints cuyas entradas y salidas serán detalladas a continuación:
 - /sign-up
 	- Se recibirá una única entrada, compuesta por el siguiente body:
+	```
 	{
 		"name": String,
 		"email": String,
@@ -15,7 +16,9 @@ La aplicación contempla el uso de dos endpoints cuyas entradas y salidas serán
 			}
 		]
 	}
+	```
 	- Si todo sale bien, se retornará la siguiente respuesta:
+	```
 	{
     	"errors": [],
     	"id": String,
@@ -24,7 +27,9 @@ La aplicación contempla el uso de dos endpoints cuyas entradas y salidas serán
     	"token": String,
     	"active": boolean
 	}
+	```
 	- Si ocurrió un error se mostrará el siguiente response:
+	```
 	{
 		"errors": [
 			{
@@ -34,9 +39,11 @@ La aplicación contempla el uso de dos endpoints cuyas entradas y salidas serán
 			}
 		]
 	}
+	```
 - /login
 	- Se recibirá un único parámetro por header. Este será el token generado previamente para el usuario.
 	- Si todo sale bien, se retornará la siguiente respuesta:
+		```
 		{
 			"id": String,
 			"created": String,
@@ -54,7 +61,9 @@ La aplicación contempla el uso de dos endpoints cuyas entradas y salidas serán
 				}
 			]
 		}
+		```
 	- Si ocurrió un error se mostrará el siguiente response:
+	```
 	{
 		"errors": [
 			{
@@ -64,3 +73,4 @@ La aplicación contempla el uso de dos endpoints cuyas entradas y salidas serán
 			}
 		]
 	}
+	```
